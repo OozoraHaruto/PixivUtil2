@@ -2,13 +2,13 @@
 import os
 
 import datetime_z
+import PixivArtistHandler
 import PixivBrowserFactory
 import PixivConstant
 import PixivDownloadHandler
 import PixivHelper
 import PixivModelFanbox
 from PixivException import PixivException
-import PixivArtistHandler
 
 
 def process_fanbox_artist_by_id(caller, config, artist_id, end_page, title_prefix=""):
@@ -18,6 +18,17 @@ def process_fanbox_artist_by_id(caller, config, artist_id, end_page, title_prefi
     caller.set_console_title(title_prefix)
     try:
         artist = br.fanboxGetArtistById(artist_id)
+        if artist is not None:
+            if artist.artistId:
+                caller.__dbManager__.insertNewMember(
+                    int(artist.artistId)
+                )
+                if artist.artistName:
+                    caller.__dbManager__.updateMemberNameOnly(
+                        artist.artistId, artist.artistName
+                    )
+                    caller.__dbManager__.updateLastDownloadDate(artist.artistId)
+
     except PixivException as pex:
         PixivHelper.print_and_log("error", f"Error getting FANBOX artist by id: {artist_id} ==> {pex.message}")
         if pex.errorCode != PixivException.USER_ID_SUSPENDED:

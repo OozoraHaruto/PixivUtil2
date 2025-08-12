@@ -94,7 +94,7 @@ class PixivDBManager(object):
                     '''ALTER TABLE pixiv_master_image ADD COLUMN caption TEXT''')
             except BaseException:
                 pass
-                
+
 
             c.execute('''CREATE TABLE IF NOT EXISTS pixiv_manga_image (
                             image_id INTEGER,
@@ -597,6 +597,24 @@ class PixivDBManager(object):
         finally:
             c.close()
 
+    def updateMemberNameOnly(self, memberId, memberName):
+        try:
+            c = self.conn.cursor()
+            c.execute(
+                """UPDATE pixiv_master_member
+                            SET name = ?
+                            WHERE member_id = ?
+                            """,
+                (memberName, memberId),
+            )
+            self.conn.commit()
+        except BaseException:
+            print("Error at updateMemberName():", str(sys.exc_info()))
+            print("failed")
+            raise
+        finally:
+            c.close()
+
     def updateSaveFolder(self, memberId, saveFolder):
         try:
             c = self.conn.cursor()
@@ -694,7 +712,7 @@ class PixivDBManager(object):
                         continue
                     if len(line.strip()) == 0:
                         continue
-                    
+
                     line = line.strip()
                     memberList.append(line)
                     line_no = line_no + 1
@@ -710,7 +728,7 @@ class PixivDBManager(object):
             finally:
                 reader.close()
                 return memberList
-        
+
         list_name = input("Members filename = ").rstrip("\r")
 
         if len(list_name) == 0:
@@ -798,7 +816,7 @@ class PixivDBManager(object):
         try:
             c = self.conn.cursor()
             image_id = int(image_id)
-            c.execute('''INSERT OR IGNORE INTO pixiv_image_to_tag(image_id, tag_id, created_date, last_update_date) 
+            c.execute('''INSERT OR IGNORE INTO pixiv_image_to_tag(image_id, tag_id, created_date, last_update_date)
                       VALUES (?, ?, datetime('now'), datetime('now'))
                       ON CONFLICT(image_id, tag_id) DO UPDATE SET last_update_date = datetime('now')''',
                       (image_id, tag_id))
@@ -813,9 +831,9 @@ class PixivDBManager(object):
     def insertTagTranslation(self, tag_id, translation_type, translation):
         try:
             c = self.conn.cursor()
-            c.execute('''INSERT OR IGNORE INTO pixiv_tag_translation(tag_id, translation_type, translation, created_date, last_update_date) 
+            c.execute('''INSERT OR IGNORE INTO pixiv_tag_translation(tag_id, translation_type, translation, created_date, last_update_date)
                       VALUES (?, ?, ?, datetime('now'), datetime('now'))
-                      ON CONFLICT(tag_id, translation_type) DO UPDATE SET 
+                      ON CONFLICT(tag_id, translation_type) DO UPDATE SET
                       translation = excluded.translation,
                       last_update_date = datetime('now')''',
                       (tag_id, translation_type, translation))
@@ -831,7 +849,7 @@ class PixivDBManager(object):
         try:
             c = self.conn.cursor()
             c.execute(
-                '''SELECT pixiv_master_image.* 
+                '''SELECT pixiv_master_image.*
                 FROM pixiv_master_image
                 JOIN pixiv_image_to_tag ON pixiv_master_image.image_id = pixiv_image_to_tag.image_id
                 WHERE pixiv_image_to_tag.tag_id = ?
@@ -848,7 +866,7 @@ class PixivDBManager(object):
         try:
             c = self.conn.cursor()
             c.execute(
-                '''SELECT pixiv_master_tag.* 
+                '''SELECT pixiv_master_tag.*
                 FROM pixiv_master_tag
                 JOIN pixiv_image_to_tag ON pixiv_image_to_tag.tag_id = pixiv_master_tag.tag_id
                 WHERE pixiv_image_to_tag.image_id = ?
@@ -1149,15 +1167,15 @@ class PixivDBManager(object):
             print("Updated manga image:", c.rowcount)
 
             print("Updating PIXIV novel details, this may take some times.")
-            
+
             c = self.conn.cursor()
             c.execute('''UPDATE novel_detail
                          SET save_name = replace(save_name, ?, ?)
                          WHERE save_name like ?''', (oldPath, self.rootDirectory, oldPath + "%", ))
             print("Updated novel detail:", c.rowcount)
-            
+
             print("Updating SKETCH images, this may take some times.")
-            
+
             c = self.conn.cursor()
             c.execute('''UPDATE sketch_post_image
                          SET save_name = replace(save_name, ?, ?)
