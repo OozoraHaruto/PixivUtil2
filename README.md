@@ -491,6 +491,11 @@ Please refer run with `--help` for latest information.
 - logLevel
 
   Set log level, valid values are CRITICAL, ERROR, WARNING, INFO, DEBUG, and NOTSET
+
+  Two log files are written next to the application: `pixivutil.log` with everything
+  at the configured level, and `pixivutil_error.log` with only warnings and errors,
+  so a failed run can be reviewed without searching the full log. Both rotate at
+  10MB, keeping 10 backups, and both are suppressed by `disableLog`.
 - enableDump
 
   Enable HTML Dump. Set to False to disable.
@@ -709,7 +714,7 @@ Please refer run with `--help` for latest information.
   The file extension (container format) to use for encoding. default: `webm`.
 - ffmpegparam
 
-  Parameter to be used to encode webm, default: `-lossless 0 -crf 15 -b 0 -vsync 0`.
+  Parameter to be used to encode webm, default: `-lossless 0 -crf 15 -b 0 -fps_mode passthrough`.
 - mkvcodec
 
   Codec to be used for encoding mkv, default is using `copy`.
@@ -721,13 +726,13 @@ Please refer run with `--help` for latest information.
   Codec to be used for encoding avif, default is using `libaom-av1`.
 - avifparam
 
-  Parameter to be used to encode avif, default: `-cpu-used 4 -crf 0 -row-mt 1 -tile-columns 2 -tile-rows 2 -vsync 0`.
+  Parameter to be used to encode avif, default: `-cpu-used 4 -crf 0 -row-mt 1 -tile-columns 2 -tile-rows 2 -fps_mode passthrough`.
 - webpcodec
 
   Codec to be used for encoding webm, default is using `libwebp`.
 - webpparam
 
-  Parameter to be used to encode webm, default: `-lossless 0 -compression_level 5 -quality 100 -loop 0 -vsync 0`.
+  Parameter to be used to encode webm, default: `-lossless 0 -compression_level 5 -quality 100 -loop 0 -fps_mode passthrough`.
 
 ## [Ugoira]
 - writeugoirainfo
